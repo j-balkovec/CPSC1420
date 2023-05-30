@@ -61,3 +61,7 @@ To get started with CPSC1420, it is recommended to:
 - Participate in group study sessions or programming communities to enhance your learning experience.
 
 Best of luck with CPSC1420! Enjoy your journey into the world of C++ programming!
+
+# License
+
+This project is NOT licensed under the [MIT License](https://theuselessweb.com). You are free to use, modify, and distribute the code and projects within this directory.
