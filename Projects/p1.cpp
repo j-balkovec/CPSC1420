@@ -1,72 +1,59 @@
+// { 
+// Driver Code Starts 
 // Jakob Balkovec
 // p1.cpp
-/* The purpose of this programme is to create a short,
-   funny story based on the users input*/
+// The purpose of this programme is to create a short,
+//   funny story based on the users input
+//
+// }
 
 #include <iostream>
 #include <string>
-using namespace std;
 
-int main()
-{
-  string yourName, place, profession, university, animal, petname;
+
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+
+  std::string name, place, profession, university, animal, pet_name;
   int age;
-  
-  cout << endl << endl;
-  cout << "Welcome to The Word Game";
-  cout << endl;
-  cout << "You will be asked to input some words!";
-  cout << endl;
-  
-  cout << endl;
-  cout << "Think of a name:  ";
-  getline (cin, yourName);
-  
-  cout << "Think of a place (could be anywhere): ";
-  getline(cin, place);
-  
-  cout << "Think of a university: ";
-  getline (cin, university);
-  
-  cout << "Think of a profession: ";
-  getline (cin, profession);
-  
-  cout << "Think of an animal: ";
-  getline (cin, animal);
-  
-  cout << "Think of a petname: ";
-  getline (cin, petname);
-  
-  cout << "Think of a number: ";
-  cin >> age;
-  
 
-  cout << endl <<endl;
-  cout << "There once was a person named ";
-  cout << yourName;
-  cout << " who lived in ";
-  cout << place << ".";
-  cout << endl;
-  cout << "At the age of ";
-  cout << age;
-  cout << ", ";
-  cout << yourName;
-  cout << " went to ";
-  cout << university << ".";
-  cout << endl;
-  cout << yourName;
-  cout << " graduated and went to work as a(n) ";
-  cout << profession << ".";
-  cout << endl;
-  cout << "Then ";
-  cout << yourName;
-  cout << " adopted a(n) ";
-  cout << animal;
-  cout << " named ";
-  cout << petname << ".";
-  cout << endl;
-  cout << "They both lived happpily ever after.";
-  cout << endl << endl;
-  
+  std::cout << "\n\nWelcome to The Word Game\n"
+    << "You will be asked to input some words!\n\n";
+
+  std::cout << "[Enter name]:  ";
+  std::cin >> name;
+
+  std::cout << "[Enter place]:  ";
+  std::getline(std::cin, place);
+
+  std::cout << "[Enter university]:  ";
+  std::getline(std::cin, university);
+
+  std::cout << "[Enter profession]:  ";
+  std::getline(std::cin, profession);
+
+  std::cout << "[Enter animal]:  ";
+  std::cin >> animal;
+
+  std::cout << "[Enter pet name]:  ";
+  std::cin >> pet_name;
+
+  try {
+    std::cout << "[Enter age]:  ";
+    std::cin >> age;
+    while (std::cin.fail()) {
+      std::cout << "[Enter an integer]:  ";
+      std::cin >> age;
+    }
+  }
+  catch (std::exception& e) {
+    std::cout << "[Error]: age must be a integer\n";
+  }
+
+  std::cout << "\n\nThere once was a person named " << name << " who lived in " << place << ".\n"
+    << "At the age of " << age << ", " << name << " graduated from " << university
+    << " and went to work as a " << profession << ".\n"
+    << "He then adopted a " << animal << " named " << pet_name << ".\n"
+    << "They both lived happily ever after.\n\n";
+  std::cout << std::flush; //flush buffer
   return 0;
 }
