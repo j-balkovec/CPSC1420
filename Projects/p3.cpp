@@ -1,269 +1,422 @@
-A//Jakob Balkovec
-//p3.cpp
-
-//this programe replicates a game of chutes&ladders
-//where both players roll the dice and move up the board
-//if a player reaches a chute he drops a couple of fields
-//if a player reaches a ladder he gains a couple of fields
+//{
+// @author: Jakob Balkovec
+// @file: p3.cpp
+// @brief: This program simulates a game of chutes and ladders.
+//              The player 1 starts at 0 and the player 2 starts at 100.
+//              The game ends when either player reaches a hundred.
+// }
 
 #include <iostream>
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include <random>
+#include <cctype>
 
-using namespace std;
+static const char YES = 'Y';
+static const int MAX_SPIN = 6;
+static const int MIN_SPIN = 1;
+static const int END = 100;
 
-void welcome();
-void goodbye();
-int spin();
-bool player();
-string orderPlay();
-void CheckChutes(int &newPos);
-void CheckLadders(int &newPos);
+enum Chute {
+  CHUTE_1 = 98,
+  CHUTE_2 = 95,
+  CHUTE_3 = 93,
+  CHUTE_4 = 87,
+  CHUTE_5 = 64,
+  CHUTE_6 = 62,
+  CHUTE_7 = 56,
+  CHUTE_8 = 49,
+  CHUTE_9 = 48,
+  CHUTE_10 = 16
+};
 
-const char YES = 'Y';
-const int MAX = 6;
-const int MIN = 1;
-int dice, newPos1, newPos2;
-const int END = 100;
-char ans;
-string playerName1, playerName2;
+enum Ladder {
+  LADDER_1 = 1,
+  LADDER_2 = 4,
+  LADDER_3 = 9,
+  LADDER_4 = 23,
+  LADDER_5 = 28,
+  LADDER_6 = 36,
+  LADDER_7 = 51,
+  LADDER_8 = 71,
+  LADDER_9 = 80,
+};
 
 
-int main()
-{ 
-  cout << endl << endl;
-  welcome();
-  
-  do{
-    srand(time(0));
-    newPos1 = 0;
-    newPos2 = 0;
-    string playerTurn = orderPlay();
-    
-    while (newPos1 < END && newPos2 < END){
-      
-      if (playerTurn == "p1" || playerTurn == "P1"){
-        cout << endl;
-        cout << playerName1 << "'s turn" << endl;
-        cout << endl;
-        
-        cout << "Press enter to spin...";
-        cin.get();
-        cout << endl;
-        spin();
-        cout << "You threw/spun " << dice << ".";
-        cout << endl;
-        
-        if((newPos1 + dice) > END){
-          cout << "Unfortunatey passed a 100...can't do that " << endl;
-          cout << "You need to throw" << END - newPos1 << endl;
-        }else{
-          newPos1 += dice;
-          CheckChutes(newPos1);
-          CheckLadders(newPos1);
-        }
-        cout << endl;
-        cout << playerName1 << ", your new location is: " << newPos1 << endl; 
-        playerTurn = "p2";
-        cout << endl << "Press enter to continue... ";
-        cin.ignore();
-        
-        
-      }else{
-        cout << endl;
-        cout << playerName2 << "'s turn" << endl;
-        cout << endl;
-        
-        cout << "Press enter to spin...";
-        cin.get();
-        spin();
-        cout << endl;
-        cout << "You threw/spun " << dice << ".";
-        cout << endl;
-        
-        if((newPos2 + dice) > END){
-          cout << "Unfortunatey passed a 100...can't do that" << endl;
-          cout << "You need to throw" << END - newPos2 << endl;
-        }else{
-          newPos2 += dice;
-          CheckChutes(newPos2);
-          CheckLadders(newPos2);
-        }  
-        cout << playerName2 << ", your new location is: " << newPos2 << endl;
-        playerTurn = "p1";
-        cout << endl << "Press enter to continue... ";
-        cin.ignore();
-        
+/** {
+ * Displays information about the last compilation of the file.
+ * @return void
+    } **/
+static inline void show_last_compiled() {
+  std::cout << "\n[file]: " << __FILE__ << '\n'
+    << "[compiled on]: " << __DATE__ << " at " << __TIME__ << '\n'
+    << "[compiler]: " << __VERSION__ << '\n'
+    << "[timestamp]: " << __TIMESTAMP__ << '\n';
+}
+
+/** {
+ * @brief Prints the instructions for the Chutes and Ladders game.
+ * @param None
+ * @return None
+ * @throws None
+    } **/
+static inline void welcome() {
+  std::cout << "\n\nWelcome to Chutes and Ladders!\n"
+    << "------------------------------------------------------------------------------------------------\n"
+    << "Instructions:\n\n"
+    << "- This is a two-player game.\n"
+    << "- The players take turns rolling a six-sided die.\n"
+    << "- Each player starts at square 1 and tries to reach square 100.\n"
+    << "- To move forward, the player's current position is incremented by the number rolled.\n"
+    << "- If a player lands at the base of a ladder, they will move up to the top of the ladder.\n"
+    << "- If a player lands on the head of a chute, they will slide down to the bottom of the chute.\n"
+    << "- The first player to reach or exceed square 100 wins the game!\n"
+    << "------------------------------------------------------------------------------------------------\n\n";
+}
+
+/** {
+ * @brief Prints a goodbye message to the console.
+ * @throws none
+    }**/
+static inline void goodbye() {
+  std::cout << "\n\n[Goodbye]\n\n";
+}
+
+/** {
+ * @brief Generates a random integer using a uniform distribution within the range
+ * [MIN_SPIN, MAX_SPIN].
+ * @return The randomly generated integer.
+ * @throws None
+    }**/
+static inline int spin() {
+  std::random_device rd;
+  std::mt19937 rng(rd());
+  std::uniform_int_distribution<int> dist(MIN_SPIN, MAX_SPIN);
+  return dist(rng);
+}
+
+/** {
+ * @brief Calculates the sum of dice thrown by spinning them.
+ * @param dice an integer reference to the dice to be spun
+ * @return the sum of dice after spinning
+ * @throws None
+    }**/
+static inline int sum(int& dice) {
+  std::cout << "Press [Enter] to spin...";
+  std::cin.get();
+  dice = spin();
+  std::cout << "\n[You threw/spun " << dice << "]\n";
+  return dice;
+}
+
+/** {
+ * @brief orders the players and their names for a game
+ * @param player_name_1 the name of player 1
+ * @param player_name_2 the name of player 2
+ * @return the name of the player who goes first
+ * @throws std::invalid_argument if an invalid player name or selection is provided
+    } **/
+static inline std::string order_play(std::string& player_name_1, std::string& player_name_2) {
+  std::string player_turn;
+  std::cout << "[Please initiate which player is going first (P1/P2)]: ";
+  std::cin >> player_turn;
+  std::cout << "\n";
+
+  try {
+    if ((player_turn != "P1" && player_turn != "p1") && (player_turn != "P2" && player_turn != "p2")) {
+      throw std::invalid_argument("Invalid player selection!");
+    }
+
+    if (player_turn == "P1" || player_turn == "p1") {
+      std::cout << "[Player 1 enter your name]: ";
+      std::cin >> player_name_1;
+      if (!isalpha(player_name_1[0])) {
+        throw std::invalid_argument("[Invalid player name! Names cannot start with a number]");
+      }
+
+      std::cout << "[Player 2 enter your name]: ";
+      std::cin >> player_name_2;
+      std::cout << "\n";
+      if (!isalpha(player_name_2[0])) {
+        throw std::invalid_argument("[Invalid player name! Names cannot start with a number]");
       }
     }
-    
-    if(newPos1 == END){
-      cout << endl;
-      cout << playerName1 << " reached a hundred and won!"
-           << endl << "Congratulations";
-    }else if(newPos2 == END){
-      cout << endl;
-      cout << playerName2 << " reached a hunderd and won!" 
-           << endl << "Congratulations";
+    else {
+      std::cout << "[Player 2 enter your name]: ";
+      std::cin >> player_name_2;
+      if (!isalpha(player_name_2[0])) {
+        throw std::invalid_argument("[Invalid player name! Names cannot start with a number]");
+      }
+
+      std::cout << "[Player 1 enter your name]: ";
+      std::cin >> player_name_1;
+      std::cout << "\n";
+      if (!isalpha(player_name_1[0])) {
+        throw std::invalid_argument("[Invalid player name! Names cannot start with a number]");
+      }
     }
-    cout << endl << endl;
-    cout << "Do you want to play again? (Y/N) ";
-    cin >> ans;
-    cout << endl;
-  }while (ans == YES);
-  
-  if(ans != YES)
-    goodbye();
-  
-  return 0;
+  }
+  catch (const std::invalid_argument& e) {
+    std::cout << "[error]: " << e.what() << "\n";
+    return order_play(player_name_1, player_name_2); //recursive call to try again
+  }
+
+  return player_turn;
 }
 
-void welcome(){
-  
-  cout << "Welcome to the chutes and ladders game. Both " << endl;
-  cout << "players start at 0, and the first one to 100 " << endl;
-  cout << "wins the game. However, if you land on a chute," << endl;
-  cout << "your player will move down, but a ladder " << endl;
-  cout << "will move you up." << endl;
-  cout << endl << "Press enter to continue...";
-  cin.get();
-  cout << endl;
-}
-void goodbye(){
-  
-  cout << endl;
-  cout << "Thank you for playing, I hope you enjoyed it!";
-  cout << endl << endl;
-}
-int spin(){
-  
-  dice = rand() % ((MAX - MIN) + 1) + MIN;
-}    //better way to get random numbers in c++
-//     while(time.srand(NULL) == dice && time.srand(NULL) > dice){
-//         time.srand(NULL){
-//             dice = rand() % ((MAX - MIN) + 1) + MIN
-//     } else{ 
+/** {
+ * @brief Checks if the given position is on a chute and updates it according to the
+ * corresponding position. If the position is not on a chute, it does nothing.
+ * @param new_pos the position to be checked and updated if necessary
+ * @return T/F
+ * @throws None
+    }**/
+static inline bool check_chutes(int& new_pos) {
+  switch (new_pos) {
+  case CHUTE_1:
+    new_pos = 78;
+    break;
+  case CHUTE_2:
+    new_pos = 75;
+    break;
+  case CHUTE_3:
+    new_pos = 73;
+    break;
+  case CHUTE_4:
+    new_pos = 24;
+    break;
+  case CHUTE_5:
+    new_pos = 60;
+    break;
+  case CHUTE_6:
+    new_pos = 19;
+    break;
+  case CHUTE_7:
+    new_pos = 53;
+    break;
+  case CHUTE_8:
+    new_pos = 11;
+    break;
+  case CHUTE_9:
+    new_pos = 26;
+    break;
+  case CHUTE_10:
+    new_pos = 6;
+    break;
+  default:
+    return false;
+  }
 
-//     }
-//     }
-//     return dice;
-// }
-
-// bool player(){
-//     while((time.srand(NULL) == dice && time.srand(NULL) > dice) == true){
-//         return true;
-//     }else{
-//         return false;
-//     }
-// }return bool player(T/F)
-
-string orderPlay(){
-  string playerTurn;
-  cout << "Please initiate which player is going first (P1/P2): ";
-  cin >> playerTurn;
-  cout << endl;
-  
-  if (playerTurn == "P1" || playerTurn == "p1"){
-    cout << "Player 1 enter your name: ";
-    cin >> playerName1;
-    cout << endl;
-    cout << endl;
-    
-    
-    cout << "Player 2 enter your name: ";
-    cin >> playerName2;
-    cout << endl;
-    cout << endl;
-
-  }else{
-    cout << "Player 2 enter your name: ";
-    cin >> playerName2;
-    cout << endl;
-    cout << endl;
-
-    
-    cout << "Player 1 enter your name: ";
-    cin >> playerName1;
-    cout << endl;
-    cout << endl;
-}
-  
-  
-  return playerTurn;
+  return true;
 }
 
-void CheckChutes (int &NewPos)
-{
-    //checks for chutes
-  
-  if (NewPos == 98){
-    NewPos = 78;
-    cout << "You landed on a chute, and have to move down" << endl;
-  }else if (NewPos == 95){
-    NewPos = 75;
-    cout << "You landed on a chute, and have to move down" << endl;
-  }else if (NewPos == 93){
-    NewPos = 73;
-    cout << "You landed on a chute, and have to move down" << endl;
-  }else if (NewPos == 87){
-    NewPos = 24;
-    cout << "You landed on a chute, and have to move down" << endl;
-  }else if (NewPos == 64){
-    NewPos = 60;
-    cout << "You landed on a chute, and have to move down" << endl;
-  }else if (NewPos == 62){
-    NewPos = 19;
-    cout << "You landed on a chute, and have to move down" << endl;
-  }else if (NewPos == 56){
-    NewPos = 53;
-    cout << "You landed on a chute, and have to move down" << endl;
-  }else if (NewPos == 49){
-    NewPos = 11;
-    cout << "You landed on a chute, and have to move down" << endl;
-  }else if (NewPos == 48){
-    NewPos = 26;
-    cout << "You landed on a chute, and have to move down" << endl;
-  }else if (NewPos == 16){
-    NewPos = 6;
-    cout << "You landed on a chute, and have to move down" << endl;
-  }else
-    NewPos = NewPos;
-  
+/** {
+ * @brief Checks if the new position of a player is on a ladder and moves them accordingly.
+ * @param new_pos the position of the player to check for ladder.
+ * @return T/F
+ * @throws None
+    }**/
+static inline bool check_ladders(int& new_pos) {
+  switch (new_pos) {
+  case LADDER_1:
+    new_pos = 38;
+    break;
+  case LADDER_2:
+    new_pos = 14;
+    break;
+  case LADDER_3:
+    new_pos = 21;
+    break;
+  case LADDER_4:
+    new_pos = 44;
+    break;
+  case LADDER_5:
+    new_pos = 84;
+    break;
+  case LADDER_6:
+    new_pos = 44;
+    break;
+  case LADDER_7:
+    new_pos = 66;
+    break;
+  case LADDER_8:
+    new_pos = 90;
+    break;
+  case LADDER_9:
+    new_pos = END;
+    break;
+  default:
+    return false;
+  }
+
+  return true;
 }
 
-void CheckLadders (int &NewPos)
-{
-  //checks for ladders
-  
-  if (NewPos == 1){
-    NewPos = 38;
-    cout << "You landed on a ladder, and get to move up the board!" << endl;
-  }else if (NewPos == 4){
-    NewPos = 14;
-    cout << "You landed on a ladder, and get to move up the board!" << endl;
-  }else if (NewPos == 9){
-    NewPos = 21;
-    cout << "You landed on a ladder, and get to move up the board!" << endl;
-  }else if (NewPos == 23){
-    NewPos = 44;
-    cout << "You landed on a ladder, and get to move up the board!" << endl;
-  }else if (NewPos == 28){
-    NewPos = 84;
-    cout << "You landed on a ladder, and get to move up the board!" << endl;
-  }else if (NewPos == 36){
-    NewPos = 44;
-    cout << "You landed on a ladder, and get to move up the board!" << endl;
-  }else if (NewPos == 51){
-    NewPos = 66;
-    cout << "You landed on a ladder, and get to move up the board!" << endl;
-  }else if (NewPos == 71){
-    NewPos = 90;
-    cout << "You landed on a ladder, and get to move up the board!" << endl;
-  }else if (NewPos == 80){
-    NewPos = END;
-    cout << "You landed on a ladder, and get to move up the board!" << endl;
-  }else
-    NewPos = NewPos;
-  
+/** {
+ * Checks if both pos and pos_ are greater than or equal to END.
+ * @param pos an integer reference representing a position
+ * @param pos_ an integer reference representing a position
+ * @return True if both pos and pos_ are greater than or equal to END, False otherwise.
+    }**/
+static inline bool done(int& pos, int& pos_) {
+  if (pos < END && pos_ < END) {
+    return false;
+  }
+  return true;
+}
+
+/** {
+ * Checks if the given positions are equal to the END position.
+ * @param pos A reference to an integer representing a position.
+ * @param pos_ A reference to an integer representing a position.
+ * @return True if both positions are equal to the END position.
+    }**/
+static inline void win(int& pos1, int& pos2, std::string const player_name_1, std::string const player_name_2) {
+  if (pos1 == END) {
+    std::cout << "\n[" << player_name_1 << " reached a hundred and won!]\n";
+  }
+  else if (pos2 == END) {
+    std::cout << "\n[" << player_name_2 << " reached a hundred and won!]\n";
+  }
+}
+
+/** {
+ * @brief Checks if the player passed the end position on the board.
+ * @param pos the current position of the player
+ * @param dice the number rolled on the dice
+ * @return true is passed, false if not
+ * @throws None
+    }**/
+static inline bool passed(int& pos, int& dice) {
+  if ((pos + dice) > END) {
+    std::cout << "[Unfortunately passed a 100...can't do that]\n";
+    std::cout << "[You need to throw\t[" << END - pos << "]]\n";
+    return true;
+  }
+  return false;
+}
+
+/** {
+ * Returns a string value representing the current status of the game
+ * for the given player. It updates the player_turn variable and waits for
+ * user input before returning.
+ * @param location an integer reference representing the player's current location
+ * @param player_name a string representing the name of the player
+ * @param player_turn a string reference representing the current turn of the player
+ * @return a string representing the player's current turn
+ * @throws None
+    }**/
+static inline std::string status(int& location, std::string const player_name, std::string& player_turn) {
+  if (player_turn == "p1") {
+    std::cout << "[" << player_name << ", your new location is: " << location << "]";
+    player_turn = "p2";
+    std::cout << "\n[Press [Enter] to continue]";
+    std::cin.ignore();
+  }
+  else {
+    std::cout << "[" << player_name << ", your new location is: " << location << "]";
+    player_turn = "p1";
+    std::cout << "\n[Press [Enter] to continue]";
+  }
+  return player_turn;
+}
+
+/** {
+ * @brief Sets the game's current turn and prints a message indicating whose turn it is.
+ * @param turn a reference to a string containing the name of the player whose turn it is
+ * @return void
+ * @throws None
+    }**/
+static inline void turn_status(std::string& turn) {
+  std::cout << "\n" << turn << "'s turn\n\n";
+}
+
+/** {
+ * @brief Returns a character obtained from user input to determine if they want to
+ * play the game again.
+ * @return The character 'Y' or 'N' based on user input.
+ * @throws None
+    }**/
+static inline char get_choice() {
+  char choice;
+  std::cout << "\n\nDo you want to play again? (Y/N) ";
+  std::cin >> choice;
+  return choice;
+}
+
+/** {
+ * This function checks whether the given position is on a ladder or a chute, and prints a message indicating the result.
+ * @param pos the position to check
+ * @return void
+ * @throws None
+    } **/
+static inline void need_move(int& pos) {
+  if (check_ladders(pos)) {
+    std::cout << "[You landed on a ladder and get to move up]\n";
+  }
+  else if (check_chutes(pos)) {
+    std::cout << "[You landed on a chute and have to move down]\n";
+  }
+
+}
+/** {
+ * The main function for the Snakes and Ladders game. Controls the game
+ * flow and player turns while calling helper functions to manage the
+ * board state. Uses standard input/output to communicate with the
+ * player in the console.
+ *
+ * @return int A status code indicating program success or failure.
+ *
+ * @throws None This function does not throw any exceptions.
+    }**/
+int main() {
+  show_last_compiled();
+  char ans = '\0';
+
+  int dice = 0;
+  int new_pos_1 = 0;
+  int new_pos_2 = 0;
+
+  std::string player_name_1 = "\0";
+  std::string player_name_2 = "\0";
+
+  welcome();
+
+  do {
+    std::string player_turn = order_play(player_name_1, player_name_2);
+    while (!done(new_pos_1, new_pos_2)) {
+      if (player_turn == "p1" || player_turn == "P1") {
+        turn_status(player_name_1);
+        sum(dice);
+        if (passed(new_pos_1, dice)) {
+          new_pos_1 = new_pos_1;
+          break;
+        }
+        else {
+          new_pos_1 += dice;
+          need_move(new_pos_1);
+        }
+        player_turn = status(new_pos_1, player_name_1, player_turn);
+      }
+      else {
+        turn_status(player_name_2);
+        sum(dice);
+
+        if (passed(new_pos_2, dice)) {
+          new_pos_2 = new_pos_2;
+          break;
+        }
+        else {
+          new_pos_2 += dice;
+          need_move(new_pos_2);
+        }
+        player_turn = status(new_pos_2, player_name_2, player_turn);
+      }
+    }
+    win(new_pos_1, new_pos_2, player_name_1, player_name_2);
+    ans = get_choice();
+  } while (ans == YES);
+  goodbye();
+  return EXIT_SUCCESS;
 }
