@@ -1,93 +1,88 @@
-// Jakob Balkovec
-// lab10.cpp
+// {
+//Jakob Balkovec
+//lab10.cpp
+//Driver Code
+//Fix SegFault
+// }
 
 #include <iostream>
 #include <fstream>
 #include <string> 
+#include <vector>
 
-using namespace std;
-
-const string FILENAME = "/home/fac/sreeder/class/cs1420/lab10input.dat";
+const std::string FILENAME = "/Users/jbalkovec/Desktop/plane/Labs:reeder/nums.txt";
 const int arraySize = 30;
 
-int main()
-{
-  cout << endl << endl;
-  
-  int numbers[arraySize];
-  int evenNum[arraySize];
-  int oddNum[arraySize];
-  int negNum[arraySize];
-  
-  ifstream inputFile(FILENAME);  
-  int normalCount = 0;
-  
-  if (inputFile.good()) {
-
-    int current_number = 0;
-    while (inputFile >> current_number){
-      numbers[normalCount] = current_number;
-      normalCount++;
-    }
-    
-    inputFile.close();
-    //prints the original array
-    cout << "The original array is:  "; //please don't deduct points for this :/
-        for (int count = 0; count < normalCount; count++){
-          cout << numbers[count] << ", ";
-        }
-        cout << endl << endl;
-        
-  }else{ 
-    cout << "Error..." << endl;
+// {
+// Prints array
+// Templated for variability
+// }
+template<typename T>
+static inline void print(T array) {
+  std::cout << "\n[array]: ";
+  for(auto const& iter : array) {
+    std::cout << iter << " ";
   }
-  
-  int evenCount = 0;
-  int oddCount = 0;
-    int negCount = 0;
-    
-    
-    //loops through the array
-    for(int i = 0; i < normalCount; i++){
+  std::cout << "\n\n";
+}
+
+// {
+// Reads the given file
+// }
+static inline void file_read(std::vector<int> numbers) {
+  std::ifstream input_file(FILENAME);  
+  int normal_count = 0;
+  try {
+    if (input_file.good()) {
+      int current_number = 0;
+      while (input_file >> current_number){
+        numbers[normal_count] = current_number;
+        normal_count++;
+      }
       
-      //even nums       
-      if(numbers[i]%2 == 0 && numbers[i] > 0){
-            evenNum[evenCount] = numbers[i];
-            evenCount++;
-            
-            //odd nums
-      }else if(numbers[i]%2 != 0 && numbers[i] > 0){
-        oddNum[oddCount] = numbers[i];
-        oddCount++;
+      input_file.close();
+      print(numbers);
+    } else{ 
+      throw std::runtime_error("cannot read file!");
+    }
+  } catch(std::exception &e) {
+    std::cout << "[error]: " << e.what() << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+}
 
-        //neg nums
-      }else if (numbers[i] < 0){
-        negNum[negCount] = numbers[i];
-        negCount++;
-        
-        //zeros
-        
-      }else if (numbers[i] == 0){}
-    }
-    //even nums print
-    cout << "Even Array: " << endl;
-    for(int i = 0; i < evenCount; i++){
-      cout<< "index " << "[" << i << "]"<<": "<< evenNum[i] << endl;
-    }
+// {
+// Finds odd and even numbers, stores them in a vector
+// }
+static inline void find_nums(std::vector<int> numbers) {
+  std::vector<int> even_n;
+  std::vector<int> odd_n;
 
-    //odd nums print
-    cout << endl << "Odd Array: " << endl;
-    for(int i = 0; i < oddCount; i++){
-      cout<< "index " << "[" << i << "]"<<": "<< oddNum[i] << endl;
-    }
+  int even_c = 0;
+  int odd_c = 0;
 
-    //neg nums print
-    cout << endl << "Negative Array: " << endl;
-    for(int i = 0; i < negCount; i++){
-        cout<< "index " << "[" << i << "]"<<": "<< negNum[i] << endl;
+  for(auto i = 0; i < (int)numbers.size(); i++){     
+    if(numbers[i]%2 == 0 && numbers[i] > 0){
+        even_n[even_c] = numbers[i];
+        even_c++;        
+    } else if(numbers[i]%2 != 0 && numbers[i] > 0){
+        odd_n[odd_c] = numbers[i];
+        odd_c++;
+        }
     }
-    
-    cout << endl << endl;
-    return 0;
+  print(even_n);
+  print(odd_n);
+  return;
+}
+
+// {
+// Main function of the program, calls worker() to execute
+// Returns 0 upon successful execution
+// }
+int main([[maybe_unused]] int argv, [[maybe_unused]] char* argc[]) {
+  std::vector<int> numbers;
+  file_read(numbers);
+  find_nums(numbers);
+  return EXIT_SUCCESS;
 }
 
