@@ -1,48 +1,53 @@
-// Jakob Balkovec
-// lab9.cpp
+// {
+//Jakob Balkovec
+//lab9.cpp
+//Driver Code
+// }
 
 #include <iostream>
 #include <string>
 
-using namespace std;
+// {
+// Gets the input from the user
+// }
+static inline void input(std::string &val1, std::string &val2) {
+  std::cout << "\n\n[enter two std::string values with a [Space] in-between]: ";
+  std::cin >> val1;
+  std::cin >> val2;
+  return;
+}
 
-void swapStr(string &val1, string &val2);
-void input(string &val1, string &val2);
-void output(string val1, string val2);
+// {
+// Prints the strings
+// }
+static inline void print(std::string &val1, std::string &val2) {
+  std::cout << "\n[{str1} = " << val1 << " and {str2} = " << val2 << "]";
+  return;
+}
 
-int main()
-{ //local scope
-string str1, str2;
+// {
+// The brains of the program, covers all the logic
+// }
+static inline void worker() {
+  std::string str1, str2;
  
- cout << endl << endl;
- input(str1, str2);
- cin.ignore();
- output(str1, str2);
- swapStr(str1, str2);
- cin.ignore();
- output(str1, str2);
- cout << endl << endl;
- return 0;
+  input(str1, str2);
+  std::cout << "*** [before] ***\n";
+  print(str1, str2);
+  std::cin.ignore();
+
+  std::swap(str1, str2);
+  std::cin.ignore();
+  std::cout << "*** [after] ***\n";
+  print(str1, str2);
+  std::cin.ignore();
 }
 
-void input(string &val1, string &val2)
-{
-  cout << "Enter two string values: ";
-  cin >> val1;
-  cin >> val2;
-  cout << endl;
-}
-
-void output(string val1, string val2)
-{
-  cout << endl;
-  cout << "str1 is " << val1 << " and str2 is " << val2 << endl;
-  
-}
-
-void swapStr(string &val1, string &val2)
-{
-  string temp = val1;
-  val1 = val2;
-  val2 = temp;
+// {
+// Main function of the program, calls worker() to execute
+// Returns 0 upon successful execution
+// }
+int main([[maybe_unused]] int argv, [[maybe_unused]] char* argc[]){
+  worker();
+ return EXIT_SUCCESS;
 }
