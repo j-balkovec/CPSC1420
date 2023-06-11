@@ -1,84 +1,158 @@
 // {
 //Jakob Balkovec
-//lab6.cpp
+//lab7.cpp
 //Driver Code
-
-// {
-// Purpose of the lab is input checking
-// }
 // }
 
-#include <iostream>
 #include <string>
-#include <algorithm>
+#include <iostream>
+#include <iomanip>
+#include <thread>
+
+static const int SLEEP = 1;
+static const int PATTERNS = 6;
+static const int COL_WIDTH = 3;
+static const int MIN = 1;
+static const int MAX = 10;
 
 // {
-// Gets string input
-// Templated so it can be used for multiple types
+// Enum that corresponds to the pattern number
+// Avoiding hardcoding
 // }
-template <typename T>
-static inline void get_input(T& value) {
-    std::cout << "\n[enter int]: ";
-    std::cin >> value;
-    return;
-}
+enum PATTERN_ID {
+  ONE = 1,
+  TWO,
+  THREE,
+  FOUR,
+  FIVE,
+  SIX
+};
 
 // {
-// Checks if numbers are atually multiples, if not it throws a runtime error
+// Gets a number and checks if its in-bounds
 // }
-template <typename T>
-static inline bool is_multiple(T val, T val_) {
+static inline void get_num(int &num) {
   try {
-    if(val % val_ != 0) {
-      throw std::runtime_error("not a multiple");
+    std::cout << "\n\n[enter a number from 1 to 10]: ";
+    std::cin >> num;
+    if(num > MAX || num < MIN) {
+      throw std::runtime_error("invalid");
     }
   } catch(std::exception &e) {
-    std::cout << "\n[error]: " << e.what() << std::endl;
-    return false;
+    std::cout << "[error]: " << e.what() << std::endl;
+    get_num(num);
   }
-  return true;
-}
-// {
-// Prints Result
-// Templated so it can be used for multiple types
-// }
-template <typename T>
-static inline void print_result(const T& value1, const T& value2) {
-    std::cout << "\n[" << value1 << " is a multiple of " << value2
-              << " the other factor is " << (value1 / value2) << "]\n\n";
-    return;
 }
 
 // {
-// Checks if the two numbers are multiples of each other
-// Templated so it can be used for multiple types   
+// Prints title
 // }
-template <typename T>
-static inline void check_multiple(const T& value1, const T& value2) {
-    try {
-        if (value1 % value2 == 0) {
-            print_result(value1, value2);
-        } else if(value1 == 0 || value2 == 0) {
-            throw std::runtime_error("\n[cannot be zero!]\n");
-        } else if(value1 < value2) {
-            std::swap(value1, value2);
-        } else {
-            std::cout << "[" << value1 << " is NOT a multiple of " << value2 << "]\n\n";
-        }
-    }catch(std::exception &e) {
-        std::cout << e.what() << std::endl;
+static inline void print_title(int param) {
+  std::cout << "\n\n[pattern]: #" << param << "\n\n";
+  return;
+}
+
+// {
+// Prints a row of ~num~ numbers
+// }
+static inline void pattern_1(int num) {
+  for(int i = 0; i < num; i++){
+   std::cout << num;
+  }
+}
+
+// {
+// Prints a column of ~num~ numbers
+// }
+static inline void pattern_2(int num) {
+  for(int i = 0; i < num; i++){
+    std::cout << num << std::endl;
+  }
+}
+
+// {
+// Prints a table of ~num~ numbers with multiples
+// }
+static inline void pattern_3(int num) {
+  std::cout << "  ";
+  for (int i = 1; i <= num; i++){ // down
+    std::cout << std::setw(COL_WIDTH) << i << "  ";
+  }
+  std::cout << std::endl;
+  
+  for (int j = 1; j <= num; j++){
+    std::cout << j;
+    for(int i = 1; i <= num; i++){ // across
+      std::cout << " " << std::setw(COL_WIDTH) << i*j << " ";
     }
-    return;
+    std::cout << std::endl;
+  }
 }
 
 // {
-// Prompts the user to enter y or n
+// Prints an increasing pattern of ~num~ numbers
 // }
-static inline char get_choice() {
-  char c;
-  std::cout << "[play again(y/n)]: ";
-  std::cin >> c;
-  return c; 
+static inline void pattern_4(int num) {
+  for(int i = 1; i <= num; i++){
+    for(int j = 0; j < i; j++){
+      std::cout << i;
+    }
+    std::cout << std::endl;
+  }
+  
+  std::cout << std::endl;
+}
+
+// {
+// Prints a half diamond of ~num~ numbers
+// }
+static inline void pattern_5(int num) {
+  for(int i = 1; i <= num; i++){
+    for(int j = 1; j < i; j++){
+      std::cout << " ";
+    }
+    std::cout << i << std::endl;
+  }
+
+  for(int i = num -1; i >= 1; i--){
+    for(int j = 1; j < i; j++){
+      std::cout << " ";
+    }
+    std::cout << i << std::endl;
+  }
+}
+
+// {
+// Prints a zigzag pattern of ~num~ numbers
+// }
+static inline void pattern_6(int num) {
+  for (int i = num; i >= 2; i--){ // not slanted
+    for(int j = 2; j <= i; j++){
+      std::cout << " ";
+    }
+    std::cout << i << std::endl;
+  }
+  // top right
+  for(int i = 1; i <= num; i++){
+    for(int j = 1; j < i; j++){
+      std::cout << " ";
+    }
+    std::cout << i << std::endl;
+  }
+  // bottom right
+  for(int i = num-1; i >= 1; i--){
+    for(int j = 2; j <= i; j++){
+      std::cout << " ";
+    }
+    std::cout << i << std::endl;
+}
+  //bottom left
+  for(int i = 2; i <= num-1; i++){
+    for(int j = 1; j < i; j++){
+      std::cout << " ";
+    }
+    std::cout << i << std::endl;
+  }
 }
 
 // {
@@ -86,21 +160,58 @@ static inline char get_choice() {
 // Returns 0 upon successful execution
 // }
 int main([[maybe_unused]] int argv, [[maybe_unused]] char* argc[]) {
-  char choice = '\0';
-  static const char Y = 'Y';
-  do{
-    int nm1, nm2 = 0;
-    get_input(nm1);
-    get_input(nm2);
+  int num = 0;
+  get_num(num);
 
-    while(!is_multiple(nm1, nm2)) {
-      get_input(nm1);
-      get_input(nm2);
+  for(auto i = 1; i < PATTERNS+1; i++) {
+    try{
+    switch(i) {
+      case PATTERN_ID::ONE: {
+        print_title(PATTERN_ID::ONE);
+        std::this_thread::sleep_for(std::chrono::seconds(SLEEP));
+        pattern_1(num);
+        break;
+      }
+
+      case PATTERN_ID::TWO: {
+        print_title(PATTERN_ID::TWO);
+        std::this_thread::sleep_for(std::chrono::seconds(SLEEP));
+        pattern_2(num);
+        break;
+      }
+
+      case PATTERN_ID::THREE: {
+        print_title(PATTERN_ID::THREE);
+        std::this_thread::sleep_for(std::chrono::seconds(SLEEP));
+        pattern_3(num);
+        break;
+      }
+      case PATTERN_ID::FOUR: {
+        print_title(PATTERN_ID::FOUR);
+        std::this_thread::sleep_for(std::chrono::seconds(SLEEP));
+        pattern_4(num);
+        break;
+      }
+      case PATTERN_ID::FIVE: {
+        print_title(PATTERN_ID::FIVE);
+        std::this_thread::sleep_for(std::chrono::seconds(SLEEP));
+        pattern_5(num);
+        break;
+      }
+      case PATTERN_ID::SIX: {
+        print_title(PATTERN_ID::SIX);
+        std::this_thread::sleep_for(std::chrono::seconds(SLEEP));
+        pattern_6(num);
+        break;
+      }
+      default: {
+        throw std::runtime_error("invalid PATTERN_ID obtained");
+        std::this_thread::sleep_for(std::chrono::seconds(SLEEP));
+      }
     }
-
-    check_multiple(nm1, nm2);
-    choice = get_choice();
-  }while(choice == 'Y');
-    return EXIT_SUCCESS;
+    } catch (std::exception &e) {
+      std::cout << "[error]: " <<  e.what() << std::endl;
+    }
+  }
+  return EXIT_SUCCESS;
 }
-
