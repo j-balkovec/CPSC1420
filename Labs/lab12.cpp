@@ -1,75 +1,78 @@
+// {
 //Jakob Balkovec
 //lab12.cpp
+//Driver Code
+// }
 
 #include <iostream> 
 #include <fstream> 
 #include <string>  
+#include <vector>
 
-using namespace std;
-const string FILENAME = "/home/fac/sreeder/class/cs1420/lab12input.dat";
-const int SIZE = 50;
-double arr[SIZE] = {0};
-const int DECIMAL = 3;
+static std::string const FILENAME = "/home/fac/sreeder/class/cs1420/lab12input.dat";
+static int const SIZE = 50;
+static int const DECIMAL = 3;
 
-int readFile(string FILENAME, double arr[]);
-void printArr(double arr[], int counter);
-double total(double arr[], int counter);
-
-int main()
-{
-  cout << endl << endl;
-
-  int counter = 0;
-  
-  counter = readFile(FILENAME, arr);
-  printArr(arr, counter);
-  cout << endl;
-  cout << "Total is:  " << total(arr, counter);
-  
-  cout << endl << endl;
-  return 0;
-}
-
-int readFile(string FILENAME, double arr[])
-{
-  ifstream inputFile;  
+// {
+// Reads the file
+// }
+static inline void read_file(std::string const FILENAME, std::vector<double> arr) {
+  std::ifstream inputFile;  
   double number;
   int i = 0;
+
+  try {
     inputFile.open(FILENAME);
-    
     if (inputFile.good()) {
       
       while (inputFile >> number){
-        arr[i] = number;
+        arr.at(i) = number;
             i++;
       }
       inputFile.close();
-      
     }else{ 
-      cout << "Error...Cannot open file" << endl;
-      cout << endl;
-      exit(1);
+      throw std::runtime_error("cannot open file");
     } 
-    return i;
+  } catch(std::exception &e) {
+    std::cout << "\n[error]: {" << e.what() << "}\n";
+    std::exit(EXIT_FAILURE);
+  }
+  return;
 }
 
-double total(double arr[], int counter)
-{
-  
+// {
+// Computes the total 
+// }
+static inline double total(std::vector<double> arr) {
   double total = 0;
-  for (int counter = 0; counter < SIZE; counter++){
-    total += arr[counter];
-}
-  
+  for (auto iter : arr){
+    total += iter;
+    }
   return total;
 }
 
-void printArr(double arr[], int counter)
-{
-  for(int k = 0; k < counter; k++){
-    cout.setf(ios::fixed,ios::floatfield);
-    cout.precision(DECIMAL);
-    cout << "Index [" << k << "]: " << arr[k] << endl;
+// {
+// Prints the array
+// }
+static inline void print_arr(std::vector<double> arr) {
+  for(auto i = 0; i < arr.size(); i++){
+    std::cout.setf(std::ios::fixed,std::ios::floatfield);
+    std::cout.precision(DECIMAL);
+    std::cout << "[index: " << i << "]:  {" << arr[i] << "}\n";
   }
+  return;
 }
 
+// {
+// Main function of the program, executes the logic
+// Returns 0 upon successful execution
+// }
+int main([[maybe_unused]] int argv, [[maybe_unused]] char* argc[]) {
+  std::vector<double> arr;
+
+  read_file(FILENAME, arr);
+  print_arr(arr);
+  std::cout << "\n[total]:  " << total(arr) << "\n\n";
+  
+  return EXIT_SUCCESS;
+}
