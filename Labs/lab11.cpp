@@ -1,84 +1,100 @@
-// Jakob Balkovec
-// lab11.cpp
+// {
+//Jakob Balkovec
+//lab11.cpp
+//Driver Code
+// }
 
-#include <iostream> //cin, cout
-#include <fstream> //file
-#include <string>  //string headerfile
-#include <iomanip> //setw()
-
-using namespace std;
+#include <iostream>
+#include <fstream> 
+#include <string>  
+#include <iomanip> 
 
 const int ARRAYSIZE = 41;
-int numbers[ARRAYSIZE] = {0};
+
 const int COL = 9;
 const int ROW = 6;
-int multiDArr[ROW][COL] = {0};
-const int COL_WIDTH = 4;
-const string FILENAME = "/home/fac/sreeder/class/cs1420/lab11input.dat";
 
-int main()
-{
-  cout << endl << endl;
-    
-  int numbers[ARRAYSIZE];
-  
-  ifstream inputFile(FILENAME);  
+const int COL_WIDTH = 4;
+const std::string FILENAME = "/home/fac/sreeder/class/cs1420/lab11input.dat";
+
+// {
+// Reads the file and stores the integers in an array
+// }
+static inline int read_file(int numbers[ARRAYSIZE]) {
+  std::ifstream input_file(FILENAME);  
   int normalCount = 0;
   int idx = 0;
-
-  if (inputFile.good()) {
-    
-    int current_number = 0;
-    while (inputFile >> current_number){
-            numbers[normalCount] = current_number;
-            normalCount++;;
+  
+  try{ 
+    if (input_file.good()) {
+      
+      int current_number = 0;
+      while (input_file >> current_number){
+	numbers[normalCount] = current_number;
+	normalCount++;;
+      }
+      
+      input_file.close();
+      
+    }else{ 
+      throw std::runtime_error("[cannot open file]");
     }
-    
-    inputFile.close();
+  }catch(std::exception &e) {
+    std::cout << "[error]: " <<e.what() << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+  return idx;
+}
 
-  }else{ 
-    cout << "Error...Cannot open file" << endl;
-    cout << endl;
-    exit(1);
+// {
+// Computes the sums in the array
+// }
+static inline void get_sum(int &idx, int size, int twod_arr[ROW][COL], int numbers[ARRAYSIZE])  {
+  int sum = 0;
+  
+  for(int i = 0; i < ROW-1; i++){ //down
+    for(int j = 0; j < COL && idx<size; j++){
+      if(j == COL-1){
+	twod_arr[i][j] = sum;
+      }else {
+	twod_arr[i][j] = numbers[idx++];
+	sum += twod_arr[i][j];
+      }
+    }
+    sum = 0;
   }
   
-    int size = sizeof(numbers)/sizeof(int);
-    int sum = 0;
-    
-    for(int i = 0; i < ROW-1; i++){ //down
-        for(int j = 0; j < COL && idx<size; j++){
-          if(j == COL-1){
-            multiDArr[i][j] = sum;
-          }else {
-            multiDArr[i][j] = numbers[idx++];
-            sum += multiDArr[i][j];
-          }
-        }
-        sum = 0;
-        }
-    
-    for (int k = 0; k < COL; k++) { //across
-      for (int l = 0; l < ROW-1; l++) {
-        sum += multiDArr[l][k];
-      }
-        multiDArr[ROW-1][k] = sum;
-        sum = 0;
+  for (int k = 0; k < COL; k++) { //across
+    for (int l = 0; l < ROW-1; l++) {
+      sum += twod_arr[l][k];
     }
+    twod_arr[ROW-1][k] = sum;
+    sum = 0;
+  }
     
-    for(int a = 0; a < ROW; a++){ //cout
-      cout << endl;
-      for(int b = 0; b < COL; b++){
-        cout << setw(COL_WIDTH) << multiDArr[a][b] << " ";
-      }
-      cout << endl;
+  for(int a = 0; a < ROW; a++){ //std::cout
+    std::cout << std::endl;
+    for(int b = 0; b < COL; b++){
+      std::cout << std::setw(COL_WIDTH) << twod_arr[a][b] << " ";
     }
-    
-        cout << endl << "The sum of the array is in the bottom right corner " 
-             << "The sum is: " << multiDArr[ROW-1][COL-1] << endl;
-        
-        
-        cout << endl << endl;
-        return 0;
+    std::cout << std::endl;
+  }
+  std::cout << "\n[sum of the array is in the bottom right corner: {" << twod_arr[ROW-1][COL-1] << "}]\n\n";
+}
+
+// {
+// Main function of the program, executes the logic
+// Returns 0 upon successful execution
+// }
+int main([[maybe_unused]] int argv, [[maybe_unused]] char* argc[]) {
+  int numbers[ARRAYSIZE] = {0};
+  int twod_arr[ROW][COL] = {0};
+  int size = sizeof(numbers)/sizeof(int);
+  int idx = read_file(numbers);
+  
+  get_sum(idx, size, twod_arr, numbers);
+  
+  return EXIT_SUCCESS;
 }
 
 
