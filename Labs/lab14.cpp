@@ -1,103 +1,103 @@
-//Jakob Balkovec
-//lab14.cpp
-
 #include <iostream>
 #include <string>
 #include <cstdlib>
 #include <fstream>
 #include <iomanip>
+#include <array>
 
-//function that prints a single record
-//function that prints the average age
-//function that returns the totla number of cups of coffee that are consumed by the entire lsot in one day
-
-using namespace std;
-
+// {
+// A structure representing a person with a name, age, and number of cups of coffee
+// }
 struct Person{
-  string name;
+  std::string name;
   int age;
   int coffee;
+  // {
+  // Overload the << operator to print a person's information
+  // }
+  friend std::ostream& operator<<(std::ostream& os, const Person& p)
+  {
+      os << std::left << std::setw(15) << p.name << ' ';
+      os << std::setw(4) << p.age << ' ';
+      os << std::setw(4) << p.coffee << ' ';
+      os << std::endl;
+      return os;
+  }
 };
 
 const int SIZE = 150;
-const int COLWIDTH = 8;
+
 const int NAME_FIELD = 15;
 const int AGE_FIELD = 4;
 const int COFFEE_FIELD = 4;
+
 const char SPACE = ' ';
-const string FILENAME = "/home/fac/sreeder/class/cs1420/lab14input.dat";
 
+// {
+// Reads the list of people from the file and returns the number of people
+// }
+static inline void readPeople(std::array<Person, SIZE>& list) {
+  try {
+    int count = 0;
+    const std::string file = "/home/fac/sreeder/class/cs1420/lab14input.dat";
+    std::ifstream infile;
+    infile.open(file);
 
-int coffeeTotals(const Person list[], int numElements);
-double averageAge(const Person list[], int numElements);
-void printOne(Person p);
+    if (infile.fail()){
+      throw std::runtime_error("file error");
+    }
 
-
-int main()
-{
-Person clients[SIZE];
-int count = 0;
-Person p;
-ifstream infile;
-double average = 0;
-int total = 0;
-
-cout << endl << endl;
-
-infile.open(FILENAME);
- if (infile.fail()){
-   cout << "File error, exiting the program";
-   cin.get();
-   exit(1);
+    while (infile >> list[count].name){
+      infile >> list[count].age >> list[count].coffee;
+      count++;
+    }
+    infile.close();
+  } catch (std::exception &e) {
+    std::cout << "[error]: " << e.what() << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
 }
 
- while (infile >> clients[count].name){
-   infile >> clients[count].age >> clients[count].coffee;
-   count++;
-}
-
-cout << left <<setw(NAME_FIELD) << "NAME" << setw(AGE_FIELD) << "AGE" << setw(COFFEE_FIELD) << "COFFEE" << endl << endl;
-
- for (int i = 0; i < count; i++){
-   p = clients[i];
-   printOne(p);
-}
-cout << endl;
-average = averageAge(clients, count);
-total = coffeeTotals(clients, count);
-
-cout << "Average age is: " << average << endl;
-cout << endl;
-cout << "Total cups of coffe: " << total << endl;
-
-cout << endl << endl;
-return 0;
-
-}
-
-double averageAge(const Person list[], int numElements)
-{
+// {
+// Calculates the average age of a list of people
+// }
+static inline double average_age(const std::array<Person, SIZE>& list) {
   double average = 0;
-  for (int i = 0; i < numElements; i++){
+  for (int i = 0; i < SIZE; i++){
     average += list[i].age;
   }
-  average = (average / numElements);
-return average;
+  return average / SIZE;
 }
 
-int coffeeTotals(const Person list[], int numElements)
-{
+// {
+// Calculates the total number of cups of coffee consumed by a list of people
+// }
+static inline int coffee_totals(const std::array<Person, SIZE>& list) {
   int total = 0;
-  for(int i = 0; i < numElements; i++){
+  for(int i = 0; i < SIZE; i++){
     total += list[i].coffee;
   }
-return total;
+  return total;
 }
 
-void printOne(Person p)
-{
-  cout << left << setw(NAME_FIELD) << p.name << SPACE;
-  cout << setw(AGE_FIELD) << p.age << SPACE;
-  cout << setw(COFFEE_FIELD) << p.coffee << SPACE;
-  cout << endl;
+// {
+// Prints the information of a single person
+// }
+static inline void print(const std::array<Person, SIZE>& list) {
+  for (auto client : list){
+    std::cout << client;
+  }
+}
+
+// {
+//Executes the main function of the C++ program. 
+// }
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+  std::array<Person, SIZE> clients{};
+  readPeople(clients);
+
+  std::cout << std::left << std::setw(NAME_FIELD) << "\n\n[name]" << SPACE << std::setw(NAME_FIELD) << "[age]" << SPACE << std::setw(AGE_FIELD) << "[coffee]" << std::endl << std::setw(COFFEE_FIELD);
+  print(clients);
+  std::cout << "\n[average]: " << average_age(clients) << "\n\n[total]: " << coffee_totals(clients) << "\n\n";
+  return EXIT_SUCCESS;
 }
