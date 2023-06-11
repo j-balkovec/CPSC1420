@@ -1,7 +1,11 @@
 // {
 //Jakob Balkovec
-//lab5.cpp
+//lab6.cpp
 //Driver Code
+
+// {
+// Purpose of the lab is input checking
+// }
 // }
 
 #include <iostream>
@@ -13,18 +17,33 @@
 // Templated so it can be used for multiple types
 // }
 template <typename T>
-void get_input(T& value) {
+static inline void get_input(T& value) {
     std::cout << "\n[enter int]: ";
     std::cin >> value;
     return;
 }
 
 // {
+// Checks if numbers are atually multiples, if not it throws a runtime error
+// }
+template <typename T>
+static inline bool is_multiple(T val, T val_) {
+  try {
+    if(val % val_ != 0) {
+      throw std::runtime_error("not a multiple");
+    }
+  } catch(std::exception &e) {
+    std::cout << "\n[error]: " << e.what() << std::endl;
+    return false;
+  }
+  return true;
+}
+// {
 // Prints Result
 // Templated so it can be used for multiple types
 // }
 template <typename T>
-void print_result(const T& value1, const T& value2) {
+static inline void print_result(const T& value1, const T& value2) {
     std::cout << "\n[" << value1 << " is a multiple of " << value2
               << " the other factor is " << (value1 / value2) << "]\n\n";
     return;
@@ -35,7 +54,7 @@ void print_result(const T& value1, const T& value2) {
 // Templated so it can be used for multiple types   
 // }
 template <typename T>
-void check_multiple(const T& value1, const T& value2) {
+static inline void check_multiple(const T& value1, const T& value2) {
     try {
         if (value1 % value2 == 0) {
             print_result(value1, value2);
@@ -70,9 +89,15 @@ int main([[maybe_unused]] int argv, [[maybe_unused]] char* argc[]) {
   char choice = '\0';
   static const char Y = 'Y';
   do{
-    int nm1, nm2;
+    int nm1, nm2 = 0;
     get_input(nm1);
     get_input(nm2);
+
+    while(!is_multiple(nm1, nm2)) {
+      get_input(nm1);
+      get_input(nm2);
+    }
+
     check_multiple(nm1, nm2);
     choice = get_choice();
   }while(choice == 'Y');
