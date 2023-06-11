@@ -1,6 +1,6 @@
 // {
 //Jakob Balkovec
-//lab4.cpp
+//lab5.cpp
 //Driver Code
 // }
 
@@ -53,14 +53,29 @@ void check_multiple(const T& value1, const T& value2) {
 }
 
 // {
+// Prompts the user to enter y or n
+// }
+static inline char get_choice() {
+  char c;
+  std::cout << "[play again(y/n)]: ";
+  std::cin >> c;
+  return c; 
+}
+
+// {
 // Main function of the program
 // Returns 0 upon successful execution
 // }
 int main([[maybe_unused]] int argv, [[maybe_unused]] char* argc[]) {
+  char choice = '\0';
+  static const char Y = 'Y';
+  do{
     int nm1, nm2;
     get_input(nm1);
     get_input(nm2);
     check_multiple(nm1, nm2);
+    choice = get_choice();
+  }while(choice == 'Y');
     return EXIT_SUCCESS;
 }
 
