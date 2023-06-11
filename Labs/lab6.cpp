@@ -1,54 +1,106 @@
-// Jakob Balkovec
-// lab6.cpp
+// {
+//Jakob Balkovec
+//lab6.cpp
+//Driver Code
+
+// {
+// Purpose of the lab is input checking
+// }
+// }
 
 #include <iostream>
 #include <string>
-using namespace std;
+#include <algorithm>
 
-const char YES = 'Y';
-char choice;
-int nm1 = 0, nm2 = 0, temp;
-
-int main()
-{
-  cout << endl << endl;
-  do{
-    
-    cout << "Please provide two intiger values, that are a multiple of one another: ";
-    cin >> nm1 >> nm2;  
-
-    while(nm1 % nm2 != 0){ // rules for multiples
-      cout << "Please provide two different intiger values, that are a multiple of one another: ";
-      cin >> nm1 >> nm2;
-      
-    if( nm1 < nm2){ // To always divide the higher number with the lower one
-      temp = nm2;
-      nm2 = nm1;
-      nm1 =temp;
-    }
-    }
-    
-
-    if (nm1 % nm2 == 0){
-      cout << endl;
-      cout << nm1 << " is a multiple of " << nm2
-           << " the other factor is " << (nm1/nm2) << "." << endl;
-      cout << endl;
-    }
-    
-    
-    cout << "Wish to play again? (Y/N): ";
-    cin >> choice;
-    cout << endl;
-    
-    
-    
-  }while(choice == YES);
-
-  cout << "Goodbye, thanks for playing!" << endl;
-  cout << endl << endl;
-  
-  
-  
-  return 0;
+// {
+// Gets string input
+// Templated so it can be used for multiple types
+// }
+template <typename T>
+static inline void get_input(T& value) {
+    std::cout << "\n[enter int]: ";
+    std::cin >> value;
+    return;
 }
+
+// {
+// Checks if numbers are atually multiples, if not it throws a runtime error
+// }
+template <typename T>
+static inline bool is_multiple(T val, T val_) {
+  try {
+    if(val % val_ != 0) {
+      throw std::runtime_error("not a multiple");
+    }
+  } catch(std::exception &e) {
+    std::cout << "\n[error]: " << e.what() << std::endl;
+    return false;
+  }
+  return true;
+}
+// {
+// Prints Result
+// Templated so it can be used for multiple types
+// }
+template <typename T>
+static inline void print_result(const T& value1, const T& value2) {
+    std::cout << "\n[" << value1 << " is a multiple of " << value2
+              << " the other factor is " << (value1 / value2) << "]\n\n";
+    return;
+}
+
+// {
+// Checks if the two numbers are multiples of each other
+// Templated so it can be used for multiple types   
+// }
+template <typename T>
+static inline void check_multiple(const T& value1, const T& value2) {
+    try {
+        if (value1 % value2 == 0) {
+            print_result(value1, value2);
+        } else if(value1 == 0 || value2 == 0) {
+            throw std::runtime_error("\n[cannot be zero!]\n");
+        } else if(value1 < value2) {
+            std::swap(value1, value2);
+        } else {
+            std::cout << "[" << value1 << " is NOT a multiple of " << value2 << "]\n\n";
+        }
+    }catch(std::exception &e) {
+        std::cout << e.what() << std::endl;
+    }
+    return;
+}
+
+// {
+// Prompts the user to enter y or n
+// }
+static inline char get_choice() {
+  char c;
+  std::cout << "[play again(y/n)]: ";
+  std::cin >> c;
+  return c; 
+}
+
+// {
+// Main function of the program
+// Returns 0 upon successful execution
+// }
+int main([[maybe_unused]] int argv, [[maybe_unused]] char* argc[]) {
+  char choice = '\0';
+  static const char Y = 'Y';
+  do{
+    int nm1, nm2 = 0;
+    get_input(nm1);
+    get_input(nm2);
+
+    while(!is_multiple(nm1, nm2)) {
+      get_input(nm1);
+      get_input(nm2);
+    }
+
+    check_multiple(nm1, nm2);
+    choice = get_choice();
+  }while(choice == 'Y');
+    return EXIT_SUCCESS;
+}
+
