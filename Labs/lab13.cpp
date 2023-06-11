@@ -102,5 +102,5 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   std::cout << std::setw(WIDTH) << get_total(arr);
 
   std::cout << std::endl << std::endl;
-  return 0;
+  return EXIT_SUCCESS;
 }
