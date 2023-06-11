@@ -1,36 +1,66 @@
+// {
 //Jakob Balkovec
 //lab4.cpp
+//Driver Code
+// }
 
 #include <iostream>
 #include <string>
-using namespace std;
+#include <algorithm>
 
-int nm1 = 0, nm2 = 0;
-int temp;
-
-int main()
-{
-  cout << endl << endl;
-  cout << "Please provide two intiger values: ";
-  cin >> nm1 >> nm2;
-  cout << endl;
-  
-  if( nm1 < nm2){ // To always divide the higher number with the lower one
-    temp = nm2;
-    nm2 = nm1;
-    nm1 =temp;
-  }
-  
-  if (nm1 % nm2 == 0){
-    cout << endl;
-      cout << "Yes, " << nm1 << " is a multiple of " << nm2
-           << " the other factor is " << (nm1/nm2) << "." << endl;
-      cout << endl;
-      
-  }else{
-    cout << nm1 << " is NOT a multiple of " << nm2 << "." << endl;
-    cout << endl;
-  }
-  
-  return 0;
+// {
+// Gets string input
+// Templated so it can be used for multiple types
+// }
+template <typename T>
+void get_input(T& value) {
+    std::cout << "\n[enter int]: ";
+    std::cin >> value;
+    return;
 }
+
+// {
+// Prints Result
+// Templated so it can be used for multiple types
+// }
+template <typename T>
+void print_result(const T& value1, const T& value2) {
+    std::cout << "\n[" << value1 << " is a multiple of " << value2
+              << " the other factor is " << (value1 / value2) << "]\n\n";
+    return;
+}
+
+// {
+// Checks if the two numbers are multiples of each other
+// Templated so it can be used for multiple types   
+// }
+template <typename T>
+void check_multiple(const T& value1, const T& value2) {
+    try {
+        if (value1 % value2 == 0) {
+            print_result(value1, value2);
+        } else if(value1 == 0 || value2 == 0) {
+            throw std::runtime_error("\n[cannot be zero!]\n");
+        } else if(value1 < value2) {
+            std::swap(value1, value2);
+        } else {
+            std::cout << "[" << value1 << " is NOT a multiple of " << value2 << "]\n\n";
+        }
+    }catch(std::exception &e) {
+        std::cout << e.what() << std::endl;
+    }
+    return;
+}
+
+// {
+// Main function of the program
+// Returns 0 upon successful execution
+// }
+int main([[maybe_unused]] int argv, [[maybe_unused]] char* argc[]) {
+    int nm1, nm2;
+    get_input(nm1);
+    get_input(nm2);
+    check_multiple(nm1, nm2);
+    return EXIT_SUCCESS;
+}
+
