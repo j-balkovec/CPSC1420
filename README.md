@@ -1,6 +1,6 @@
 # CPSC1420 - Introduction to C++ Programming
 
-Welcome to CPSC1420, an introductory course to C++ programming! In this course, you will learn the fundamentals of C++ programming and gain a solid foundation in writing code, understanding basic concepts, and output formatting.
+CPSC1420, an introductory course to C++ programming. This course is about the fundamentals of C++ programming and gaining a solid foundation in writing code, understanding basic concepts, and output formatting.
 
 ## Course Overview
 
